@@ -23,25 +23,44 @@ import Badge from "@mui/material/Badge";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import EventIcon from "@mui/icons-material/Event";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+import dayjs from "dayjs";
+
+const today = dayjs();
+
+const isInCurrentMonth = (date) => date.get("month") === dayjs().get("month");
 
 const StaffCalendar = () => {
   const [value, setValue] = useState(new Date());
   const [highlightedDays, setHighlightedDays] = useState([1, 2, 5, 15]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [isRemoveFormOpen, setIsRemoveFormOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [email, setEmail] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isRemoveSubmitted, setIsRemoveSubmitted] = useState(false);
   const [events, setEvents] = useState([]);
 
-  const handleFormOpen = () => {
-    setIsFormOpen(true);
+  const handleAddFormOpen = () => {
+    setIsAddFormOpen(true);
   };
 
-  const handleFormClose = () => {
-    setIsFormOpen(false);
+  const handleAddFormClose = () => {
+    setIsAddFormOpen(false);
+  };
+
+  const handleRemoveFormOpen = () => {
+    setIsRemoveFormOpen(true);
+  };
+
+  const handleRemoveFormClose = () => {
+    setIsRemoveFormOpen(false);
   };
 
   const handleFormSubmit = () => {
@@ -60,7 +79,24 @@ const StaffCalendar = () => {
     setMessage("");
     setEvents([...events, newEvent]);
     setIsSubmitted(true);
-    setIsFormOpen(false);
+    setIsAddFormOpen(false);
+  };
+
+  const handleRemoveEventSubmit = () => {
+    const newEvent = {
+      startTime,
+      endTime,
+      title,
+      email,
+    };
+
+    setTitle("");
+    setEmail("");
+    setStartTime("");
+    setEndTime("");
+    setEvents([...events, newEvent]);
+    setIsRemoveSubmitted(true);
+    setIsRemoveFormOpen(false);
   };
 
   const times = [
@@ -120,7 +156,7 @@ const StaffCalendar = () => {
           <Stack direction="column" spacing={3} alignItems="center">
             <Button
               variant="primary"
-              onClick={handleFormOpen}
+              onClick={handleAddFormOpen}
               sx={{
                 bgcolor: "#ECF0F1",
                 color: " #b90e0a",
@@ -133,10 +169,10 @@ const StaffCalendar = () => {
             >
               Add Event
             </Button>
-            {isFormOpen && !isSubmitted && (
+            {isAddFormOpen && !isSubmitted && (
               <Dialog
-                open={isFormOpen}
-                onClose={handleFormClose}
+                open={isAddFormOpen}
+                onClose={handleAddFormClose}
                 sx={{
                   display: "flex",
                   flexDirection: "column",
@@ -155,30 +191,33 @@ const StaffCalendar = () => {
                     sx={{ width: "100%" }}
                   />
                   <TextField
-                    label="Attendees :"
+                    label="email :"
                     variant="outlined"
                     margin="normal"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     sx={{ width: "100%" }}
                   />
-                  <TextField
-                    label="Start Time :"
-                    variant="outlined"
-                    margin="normal"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    sx={{ width: "100%" }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoItem label="StartTime">
+                      <DateTimePicker
+                        defaultValue={today}
+                        shouldDisableMonth={isInCurrentMonth}
+                        views={["year", "month", "day", "hours", "minutes"]}
+                      />
+                    </DemoItem>
+                  </LocalizationProvider>
 
-                  <TextField
-                    label="End Time :"
-                    variant="outlined"
-                    margin="normal"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    sx={{ width: "100%" }}
-                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoItem label="EndTime">
+                      <DateTimePicker
+                        defaultValue={today}
+                        shouldDisableMonth={isInCurrentMonth}
+                        views={["year", "month", "day", "hours", "minutes"]}
+                      />
+                    </DemoItem>
+                  </LocalizationProvider>
+
                   <TextField
                     label="Description :"
                     variant="outlined"
@@ -210,10 +249,12 @@ const StaffCalendar = () => {
                   variant="outlined"
                   color="primary"
                   onClick={() => {
-                    setIsFormOpen(false);
+                    setIsAddFormOpen(false);
                     setIsSubmitted(false);
                   }}
-                ></Button>
+                >
+                  Close
+                </Button>
               </div>
             )}
 
@@ -229,9 +270,88 @@ const StaffCalendar = () => {
                 },
               }}
               startIcon={<DeleteIcon />}
+              onClick={handleRemoveFormOpen}
             >
               Remove Event
             </Button>
+            {isRemoveFormOpen && !isRemoveSubmitted && (
+              <Dialog
+                open={isRemoveFormOpen}
+                onClose={handleRemoveFormClose}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: "20px",
+                  width: "500px",
+                }}
+              >
+                <DialogTitle>Remove Event</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    label="Title :"
+                    variant="outlined"
+                    margin="normal"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    sx={{ width: "100%" }}
+                  />
+                  <TextField
+                    label="email :"
+                    variant="outlined"
+                    margin="normal"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    sx={{ width: "100%" }}
+                  />
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoItem label="StartTime">
+                      <DateTimePicker
+                        defaultValue={today}
+                        shouldDisableMonth={isInCurrentMonth}
+                        views={["year", "month", "day", "hours", "minutes"]}
+                      />
+                    </DemoItem>
+                  </LocalizationProvider>
+
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoItem label="EndTime">
+                      <DateTimePicker
+                        defaultValue={today}
+                        shouldDisableMonth={isInCurrentMonth}
+                        views={["year", "month", "day", "hours", "minutes"]}
+                      />
+                    </DemoItem>
+                  </LocalizationProvider>
+
+                  <DialogActions sx={{ justifyContent: "center" }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleRemoveEventSubmit}
+                    >
+                      Delete
+                    </Button>
+                  </DialogActions>
+                </DialogContent>
+              </Dialog>
+            )}
+            {isRemoveSubmitted && (
+              <div>
+                <Typography variant="h6" align="center" gutterBottom>
+                  event successfully removed!
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setIsRemoveFormOpen(false);
+                    setIsRemoveSubmitted(false);
+                  }}
+                >
+                  Close
+                </Button>
+              </div>
+            )}
           </Stack>
         </div>
         <div
@@ -273,7 +393,7 @@ const StaffCalendar = () => {
                                 {event.title}
                               </Typography>
                               <Typography variant="body2">
-                                {event.attendees}
+                                {event.email}
                               </Typography>
                               <Typography variant="body2">
                                 {event.message}
