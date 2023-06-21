@@ -12,8 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Stack,
 } from "@mui/material";
 import Badge from "@mui/material/Badge";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
@@ -52,73 +50,76 @@ const Calendar = () => {
   ];
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box style={{ display: "flex", width: "100%" }}>
-        <div style={{ flex: 4, textAlign: "center" }}>
-          <StaticDatePicker
-            orientation="portrait"
-            openTo="day"
-            value={value}
-            onChange={(newValue) => {
-              setValue(newValue);
+    <>
+      <CalendarNavbar />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <Box style={{ display: "flex", width: "100%" }}>
+          <div style={{ flex: 4, textAlign: "center" }}>
+            <StaticDatePicker
+              orientation="portrait"
+              openTo="day"
+              value={value}
+              onChange={(newValue) => {
+                setValue(newValue);
+              }}
+              renderInput={(params) => <TextField {...params} />}
+              renderDay={(day, _value, DayComponentProps) => {
+                const isSelected =
+                  !DayComponentProps.outsideCurrentMonth &&
+                  highlightedDays.indexOf(day.getDate()) >= 0;
+                return (
+                  <Badge
+                    key={day.toString()}
+                    overlap="circular"
+                    badgeContent={isSelected ? "🌚" : undefined}
+                  >
+                    <PickersDay {...DayComponentProps} />
+                  </Badge>
+                );
+              }}
+            />
+          </div>
+          <div
+            style={{
+              flex: 8,
+              marginLeft: "1rem",
+              marginTop: "1rem",
             }}
-            renderInput={(params) => <TextField {...params} />}
-            renderDay={(day, _value, DayComponentProps) => {
-              const isSelected =
-                !DayComponentProps.outsideCurrentMonth &&
-                highlightedDays.indexOf(day.getDate()) >= 0;
-              return (
-                <Badge
-                  key={day.toString()}
-                  overlap="circular"
-                  badgeContent={isSelected ? "🌚" : undefined}
-                >
-                  <PickersDay {...DayComponentProps} />
-                </Badge>
-              );
-            }}
-          />
-        </div>
-        <div
-          style={{
-            flex: 8,
-            marginLeft: "1rem",
-            marginTop: "1rem",
-          }}
-        >
-          <TableContainer style={{ width: "100%" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Event</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {times.map((time) => (
-                  <TableRow key={time}>
-                    <TableCell
-                      style={{
-                        borderBottom: "1px dotted #000",
-                      }}
-                    >
-                      <Typography variant="body1">{time}</Typography>
-                    </TableCell>
-                    <TableCell
-                      style={{
-                        borderBottom: "1px dotted #000",
-                      }}
-                    >
-                      {/* Add event data here */}
-                    </TableCell>
+          >
+            <TableContainer style={{ width: "100%" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Time</TableCell>
+                    <TableCell>Event</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-      </Box>
-    </LocalizationProvider>
+                </TableHead>
+                <TableBody>
+                  {times.map((time) => (
+                    <TableRow key={time}>
+                      <TableCell
+                        style={{
+                          borderBottom: "1px dotted #000",
+                        }}
+                      >
+                        <Typography variant="body1">{time}</Typography>
+                      </TableCell>
+                      <TableCell
+                        style={{
+                          borderBottom: "1px dotted #000",
+                        }}
+                      >
+                        {/* Add event data here */}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        </Box>
+      </LocalizationProvider>
+    </>
   );
 };
 
